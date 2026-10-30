@@ -19,6 +19,7 @@ const mappingBody = document.getElementById('mapping-body');
 const buttonFeedbackElement = document.getElementById('button-feedback');
 const saveSettingsButton = document.getElementById('save-settings');
 const cancelSettingsButton = document.getElementById('cancel-settings');
+const defaultSettingsButton = document.getElementById('default-settings');
 
 let videoToggle = true;
 
@@ -430,6 +431,14 @@ function initUI() {
         clearButtonMap();
         loadSettings();
         closeSettings();
+    });
+
+    defaultSettingsButton.addEventListener('click', () => {
+        clearButtonMap();
+        CONTROLS.forEach(control => {
+            setButtonMap(control.button, 'keyboard', control.key_default);
+            setButtonMap(control.button, 'gamepad', control.gamepad_default);
+        });
     });
 
     // Add event listeners to each set button
