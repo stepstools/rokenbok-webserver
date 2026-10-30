@@ -234,6 +234,23 @@ function clearButtonMap() {
     }
 }
 
+/**
+ * Checks if the new mapping for targetButton is already in use elsewhere.
+ * If it is, the function clears the mapping on all conflicting buttons.
+ * @param {string} targetButton - The button in the process of being mapped
+ * @param {string} device - 'keyboard' or 'gamepad'
+ * @param {string} value - The key code or button index value
+ */
+function resolveMappingConflicts(targetButton, device, value) {
+    CONTROLS.forEach(control => {
+        if (control.button !== targetButton) { // Don't evaluate for the targetButton
+            if (getButtonMap(control.button, device) === value) { // Check for conflict
+                setButtonMap(control.button, device, ''); // Clear mapping on detected conflict
+            }
+        }
+    });
+}
+
 // Handle gamepad input
 function pollGamepad() {
     if (inputDeviceSelect.value !== 'gamepad') return;
@@ -246,6 +263,7 @@ function pollGamepad() {
     if (newButtonMap && newButtonMap.device === 'gamepad') {
         gamepad.buttons.forEach((btn, index) => {
             if (btn.pressed && !lastGamepadButtons[index]) {
+                resolveMappingConflicts(newButtonMap.button, 'gamepad', String(index));
                 setButtonMap(newButtonMap.button, 'gamepad', String(index));
                 const btnEl = document.getElementById(`set_${newButtonMap.button}`);
                 if (btnEl) btnEl.textContent = 'Set';
@@ -293,6 +311,7 @@ function handleKeydown(e) {
 
     // Store the latest keypress if changing a setting
     if (newButtonMap && newButtonMap.device === 'keyboard') {
+        resolveMappingConflicts(newButtonMap.button, 'keyboard', e.code);
         setButtonMap(newButtonMap.button, 'keyboard', e.code);
         const btnEl = document.getElementById(`set_${newButtonMap.button}`);
         if (btnEl) btnEl.textContent = 'Set';
